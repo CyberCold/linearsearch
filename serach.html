@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Поиск числа (JS / PHP / Анализ)</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #0e0e0e; color: #f1f1f1; text-align: center; padding: 40px; }
+  input, button { padding: 10px; margin: 8px; border: none; border-radius: 6px; font-size: 16px; }
+  input { width: 300px; }
+  button { cursor: pointer; background: #008cff; color: #fff; transition: 0.2s; }
+  button:hover { background: #00aaff; }
+  #result { margin-top: 20px; font-size: 18px; }
+  #animation { margin-top: 20px; }
+  .number-box { display: inline-block; width: 45px; height: 45px; margin: 4px; line-height: 45px; border-radius: 8px; background: #222; border: 2px solid #333; transition: all 0.3s; }
+  .checking { background: #ffb400; border-color: #ffaa00; }
+  .found { background: #00c851; border-color: #00e676; }
+  .notfound { background: #ff4444; border-color: #ff6666; }
+</style>
+</head>
+<body>
+  <h2>🔍 Поиск числа</h2>
+  <input type="text" id="arrayInput" placeholder="Введите массив (например: 3,5,8,2,9)">
+  <br>
+  <input type="text" id="targetInput" placeholder="Введите искомое число">
+  <br>
+  <button onclick="searchJS()">Поиск (JS)</button>
+  <button onclick="searchPHP()">Поиск (PHP)</button>
+  <button onclick="analyzeJS()">Анализ поиска (JS)</button>
+  <div id="result"></div>
+  <div id="animation"></div>
+
+<script>
+function parseArray() {
+  const arrStr = document.getElementById('arrayInput').value;
+  if (!arrStr.trim()) {
+    // Если поле пустое, генерируем 50 случайных чисел
+    return Array.from({length: 50 + Math.floor(Math.random()*21)}, () => Math.floor(Math.random()*1000));
+  }
+  return arrStr.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+}
+
+// JS-поиск с точностью до 12 значащих цифр
+function searchJS() {
+  const arr = parseArray();
+  const target = parseFloat(document.getElementById('targetInput').value);
+  const start = performance.now();
+  let foundIndex = -1;
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === target) { foundIndex = i; break; }
+  }
+  const end = performance.now();
+  const duration = end - start;
+  document.getElementById('result').innerHTML =
+    `🔹 JS: число <b>${target}</b> → ${foundIndex >= 0 ? 'найдено на позиции ' + foundIndex : 'не найдено'} за ${duration.toPrecision(12)} мс`;
+}
+
+function searchPHP() {
+  const arr = parseArray();
+  const target = parseFloat(document.getElementById('targetInput').value);
+  const start = performance.now();
+  let foundIndex = -1;
+  arr.forEach((val,i) => { if(val===target && foundIndex===-1) foundIndex=i; });
+  const end = performance.now();
+  const duration = end - start;
+  document.getElementById('result').innerHTML =
+    `🔹 PHP: число <b>${target}</b> → ${foundIndex >= 0 ? 'найдено на позиции ' + foundIndex : 'не найдено'} за ${duration.toPrecision(12)} мс`;
+}
+
+// Анализ поиска с анимацией
+async function analyzeJS() {
+  const arr = parseArray();
+  const target = parseFloat(document.getElementById('targetInput').value);
+  const animation = document.getElementById('animation');
+  const resultDiv = document.getElementById('result');
+  animation.innerHTML = '';
+  resultDiv.innerHTML = '▶ Анализ поиска...';
+  const boxes = arr.map(num => {
+    const div = document.createElement('div');
+    div.className = 'number-box';
+    div.textContent = num;
+    animation.appendChild(div);
+    return div;
+  });
+
+  let found = false;
+  const start = performance.now();
+  for (let i = 0; i < arr.length; i++) {
+    boxes[i].classList.add('checking');
+    await new Promise(r => setTimeout(r, 300)); // визуальная задержка
+    if (arr[i] === target) {
+      boxes[i].classList.remove('checking');
+      boxes[i].classList.add('found');
+      found = true;
+      const end = performance.now();
+      resultDiv.innerHTML = `✅ JS-анализ: число <b>${target}</b> найдено на позиции ${i} за ${(end-start).toPrecision(120)} мс`;
+      break;
+    } else {
+      boxes[i].classList.remove('checking');
+      boxes[i].classList.add('notfound');
+    }
+  }
+
+  if(!found){
+    const end = performance.now();
+    resultDiv.innerHTML = `❌ JS-анализ: число <b>${target}</b> не найдено (за ${(end-start).toPrecision(12)} мс)`;
+  }
+}
+</script>
+</body>
+</html>
