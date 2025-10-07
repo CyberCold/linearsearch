@@ -33,40 +33,45 @@
 function parseArray() {
   const arrStr = document.getElementById('arrayInput').value;
   if (!arrStr.trim()) {
-    // Если поле пустое, генерируем 50 случайных чисел
+    // Если поле пустое, генерируем 50–70 случайных чисел
     return Array.from({length: 50 + Math.floor(Math.random()*21)}, () => Math.floor(Math.random()*1000));
   }
   return arrStr.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
 }
 
-// JS-поиск с точностью до 12 значащих цифр
+// JS-поиск, повтор 100 раз
 function searchJS() {
   const arr = parseArray();
   const target = parseFloat(document.getElementById('targetInput').value);
-  const start = performance.now();
   let foundIndex = -1;
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i] === target) { foundIndex = i; break; }
+  const start = performance.now();
+  for (let k = 0; k < 100; k++) {
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] === target) { foundIndex = i; break; }
+    }
   }
   const end = performance.now();
   const duration = end - start;
   document.getElementById('result').innerHTML =
-    `🔹 JS: число <b>${target}</b> → ${foundIndex >= 0 ? 'найдено на позиции ' + foundIndex : 'не найдено'} за ${duration.toPrecision(12)} мс`;
+    `🔹 JS: число <b>${target}</b> → ${foundIndex >= 0 ? 'найдено на позиции ' + foundIndex : 'не найдено'} за ${duration.toPrecision(12)} мс (100 повторов)`;
 }
 
+// "PHP-поиск" на JS, повтор 100 раз
 function searchPHP() {
   const arr = parseArray();
   const target = parseFloat(document.getElementById('targetInput').value);
-  const start = performance.now();
   let foundIndex = -1;
-  arr.forEach((val,i) => { if(val===target && foundIndex===-1) foundIndex=i; });
+  const start = performance.now();
+  for (let k = 0; k < 100; k++) {
+    arr.forEach((val,i) => { if(val===target && foundIndex===-1) foundIndex=i; });
+  }
   const end = performance.now();
   const duration = end - start;
   document.getElementById('result').innerHTML =
-    `🔹 PHP: число <b>${target}</b> → ${foundIndex >= 0 ? 'найдено на позиции ' + foundIndex : 'не найдено'} за ${duration.toPrecision(12)} мс`;
+    `🔹 PHP: число <b>${target}</b> → ${foundIndex >= 0 ? 'найдено на позиции ' + foundIndex : 'не найдено'} за ${duration.toPrecision(12)} мс (100 повторов)`;
 }
 
-// Анализ поиска с анимацией
+// Анализ поиска с анимацией (один раз, без повторов)
 async function analyzeJS() {
   const arr = parseArray();
   const target = parseFloat(document.getElementById('targetInput').value);
@@ -92,7 +97,7 @@ async function analyzeJS() {
       boxes[i].classList.add('found');
       found = true;
       const end = performance.now();
-      resultDiv.innerHTML = `✅ JS-анализ: число <b>${target}</b> найдено на позиции ${i} за ${(end-start).toPrecision(120)} мс`;
+      resultDiv.innerHTML = `✅ JS-анализ: число <b>${target}</b> найдено на позиции ${i} за ${(end-start).toPrecision(12)} мс`;
       break;
     } else {
       boxes[i].classList.remove('checking');
