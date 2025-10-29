@@ -2,112 +2,259 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Поиск числа (JS / PHP / Анализ)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Поиск числа (JS / PHP / Барьер)</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #0e0e0e; color: #f1f1f1; text-align: center; padding: 40px; }
-  input, button { padding: 10px; margin: 8px; border: none; border-radius: 6px; font-size: 16px; }
-  input { width: 300px; }
-  button { cursor: pointer; background: #008cff; color: #fff; transition: 0.2s; }
-  button:hover { background: #00aaff; }
-  #result { margin-top: 20px; font-size: 18px; }
-  #animation { margin-top: 20px; }
-  .number-box { display: inline-block; width: 45px; height: 45px; margin: 4px; line-height: 45px; border-radius: 8px; background: #222; border: 2px solid #333; transition: all 0.3s; }
-  .checking { background: #ffb400; border-color: #ffaa00; }
-  .found { background: #00c851; border-color: #00e676; }
-  .notfound { background: #ff4444; border-color: #ff6666; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #0e0e0e;
+    color: #f1f1f1;
+    text-align: center;
+    padding: 40px;
+    margin: 0;
+  }
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  h2 {
+    color: #00aaff;
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+  .subtitle {
+    color: #888;
+    margin-bottom: 30px;
+  }
+  input, button {
+    padding: 12px;
+    margin: 8px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+  }
+  input {
+    width: 350px;
+    background: #1a1a1a;
+    color: #f1f1f1;
+    border: 1px solid #333;
+  }
+  input:focus {
+    outline: none;
+    border-color: #008cff;
+  }
+  button {
+    cursor: pointer;
+    background: #008cff;
+    color: #fff;
+    transition: 0.2s;
+    min-width: 200px;
+    font-weight: bold;
+  }
+  button:hover {
+    background: #00aaff;
+    transform: translateY(-2px);
+  }
+  .buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin: 30px 0;
+  }
+  .section-title {
+    background: linear-gradient(90deg, #008cff, #00aaff);
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 30px 0 15px 0;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  .info {
+    background: #1a1a1a;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    border-left: 4px solid #9c27b0;
+    text-align: left;
+  }
+  #result {
+    background: #1a1a1a;
+    padding: 25px;
+    margin: 30px 0;
+    border-radius: 8px;
+    border-left: 4px solid #00c851;
+    text-align: left;
+    min-height: 80px;
+  }
+  #animation {
+    margin-top: 20px;
+    padding: 20px;
+    background: #0a0a0a;
+    border-radius: 8px;
+    min-height: 100px;
+  }
+  .number-box {
+    display: inline-block;
+    width: 45px;
+    height: 45px;
+    margin: 4px;
+    line-height: 45px;
+    border-radius: 8px;
+    background: #222;
+    border: 2px solid #333;
+    transition: all 0.3s;
+    font-weight: bold;
+  }
+  .checking {
+    background: #ffb400;
+    border-color: #ffaa00;
+    transform: scale(1.1);
+  }
+  .found {
+    background: #00c851;
+    border-color: #00e676;
+    transform: scale(1.2);
+  }
+  .notfound {
+    background: #ff4444;
+    border-color: #ff6666;
+    opacity: 0.5;
+  }
+  .barrier {
+    background: #9c27b0;
+    border-color: #ba68c8;
+    font-size: 12px;
+  }
+  .php-badge {
+    background: #8892bf;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-left: 10px;
+  }
+  .js-badge {
+    background: #f7df1e;
+    color: #000;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-left: 10px;
+  }
 </style>
 </head>
 <body>
-  <h2>🔍 Поиск числа</h2>
-  <input type="text" id="arrayInput" placeholder="Введите массив (например: 3,5,8,2,9)">
-  <br>
-  <input type="text" id="targetInput" placeholder="Введите искомое число">
-  <br>
-  <button onclick="searchJS()">Поиск (JS)</button>
-  <button onclick="searchPHP()">Поиск (PHP)</button>
-  <button onclick="analyzeJS()">Анализ поиска (JS)</button>
-  <div id="result"></div>
-  <div id="animation"></div>
+  <div class="container">
+    <h2>🔍 Поиск числа в массиве</h2>
+    <p class="subtitle">Сравнение линейного поиска и поиска с барьером (JS vs PHP)</p>
+    
+    <div class="info">
+      <strong>📌 Что такое поиск с барьером?</strong><br>
+      Поиск с барьером — это оптимизация линейного поиска. Искомый элемент добавляется в конец массива (барьер), 
+      что гарантирует его нахождение и позволяет убрать проверку границ массива в цикле. 
+      Это уменьшает количество операций сравнения в каждой итерации.
+    </div>
+
+    <input type="text" id="arrayInput" placeholder="Введите массив (например: 3,5,8,2,9) или оставьте пустым">
+    <br>
+    <input type="text" id="targetInput" placeholder="Введите искомое число">
+    <br>
+    
+    <div class="section-title">
+      🟨 JavaScript (клиентская сторона)
+    </div>
+    <div class="buttons-grid">
+      <button onclick="callPHP('js_linear')">
+        Линейный поиск <span class="js-badge">JS</span>
+      </button>
+      <button onclick="callPHP('js_barrier')">
+        Поиск с барьером <span class="js-badge">JS</span>
+      </button>
+      <button onclick="callPHP('js_analyze')">
+        Визуальный анализ <span class="js-badge">JS</span>
+      </button>
+      <button onclick="callPHP('js_analyze_barrier')">
+        Анализ барьера <span class="js-badge">JS</span>
+      </button>
+    </div>
+
+    <div class="section-title">
+      🟪 PHP (серверная сторона)
+    </div>
+    <div class="buttons-grid">
+      <button onclick="callPHP('php_linear')">
+        Линейный поиск <span class="php-badge">PHP</span>
+      </button>
+      <button onclick="callPHP('php_barrier')">
+        Поиск с барьером <span class="php-badge">PHP</span>
+      </button>
+    </div>
+
+    <div id="result"></div>
+    <div id="animation"></div>
+  </div>
 
 <script>
-function parseArray() {
-  const arrStr = document.getElementById('arrayInput').value;
-  if (!arrStr.trim()) {
-    // Если поле пустое, генерируем 50–70 случайных чисел
-    return Array.from({length: 50 + Math.floor(Math.random()*21)}, () => Math.floor(Math.random()*1000));
+// Функция подключения к PHP файлу
+async function callPHP(action) {
+  const arrayInput = document.getElementById('arrayInput').value;
+  const targetInput = document.getElementById('targetInput').value;
+  
+  if (!targetInput.trim()) {
+    alert('Введите искомое число!');
+    return;
   }
-  return arrStr.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
-}
 
-// JS-поиск, повтор 100 раз
-function searchJS() {
-  const arr = parseArray();
-  const target = parseFloat(document.getElementById('targetInput').value);
-  let foundIndex = -1;
-  const start = performance.now();
-  for (let k = 0; k < 100; k++) {
-    for (let i = 0; i < arr.length; i++) {
-      if (arr[i] === target) { foundIndex = i; break; }
+  // Очищаем результаты
+  document.getElementById('result').innerHTML = '<p style="color: #ffb400;">⏳ Загрузка...</p>';
+  document.getElementById('animation').innerHTML = '';
+
+  // Отправляем данные в PHP
+  const formData = new FormData();
+  formData.append('array', arrayInput);
+  formData.append('target', targetInput);
+  formData.append('action', action);
+
+  try {
+    const response = await fetch('search.php', {
+      method: 'POST',
+      body: formData
+    });
+
+    const html = await response.text();
+    
+    // Вставляем HTML от PHP
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    // Переносим результат
+    const resultContent = tempDiv.querySelector('#result');
+    if (resultContent) {
+      document.getElementById('result').innerHTML = resultContent.innerHTML;
     }
-  }
-  const end = performance.now();
-  const duration = end - start;
-  document.getElementById('result').innerHTML =
-    `🔹 JS: число <b>${target}</b> → ${foundIndex >= 0 ? 'найдено на позиции ' + foundIndex : 'не найдено'} за ${duration.toPrecision(12)} мс (100 повторов)`;
-}
-
-// "PHP-поиск" на JS, повтор 100 раз
-function searchPHP() {
-  const arr = parseArray();
-  const target = parseFloat(document.getElementById('targetInput').value);
-  let foundIndex = -1;
-  const start = performance.now();
-  for (let k = 0; k < 100; k++) {
-    arr.forEach((val,i) => { if(val===target && foundIndex===-1) foundIndex=i; });
-  }
-  const end = performance.now();
-  const duration = end - start;
-  document.getElementById('result').innerHTML =
-    `🔹 PHP: число <b>${target}</b> → ${foundIndex >= 0 ? 'найдено на позиции ' + foundIndex : 'не найдено'} за ${duration.toPrecision(12)} мс (100 повторов)`;
-}
-
-// Анализ поиска с анимацией (один раз, без повторов)
-async function analyzeJS() {
-  const arr = parseArray();
-  const target = parseFloat(document.getElementById('targetInput').value);
-  const animation = document.getElementById('animation');
-  const resultDiv = document.getElementById('result');
-  animation.innerHTML = '';
-  resultDiv.innerHTML = '▶ Анализ поиска...';
-  const boxes = arr.map(num => {
-    const div = document.createElement('div');
-    div.className = 'number-box';
-    div.textContent = num;
-    animation.appendChild(div);
-    return div;
-  });
-
-  let found = false;
-  const start = performance.now();
-  for (let i = 0; i < arr.length; i++) {
-    boxes[i].classList.add('checking');
-    await new Promise(r => setTimeout(r, 300)); // визуальная задержка
-    if (arr[i] === target) {
-      boxes[i].classList.remove('checking');
-      boxes[i].classList.add('found');
-      found = true;
-      const end = performance.now();
-      resultDiv.innerHTML = `✅ JS-анализ: число <b>${target}</b> найдено на позиции ${i} за ${(end-start).toPrecision(12)} мс`;
-      break;
-    } else {
-      boxes[i].classList.remove('checking');
-      boxes[i].classList.add('notfound');
+    
+    // Переносим анимацию
+    const animationContent = tempDiv.querySelector('#animation');
+    if (animationContent) {
+      document.getElementById('animation').innerHTML = animationContent.innerHTML;
     }
-  }
+    
+    // Выполняем скрипты из PHP ответа
+    const scripts = tempDiv.querySelectorAll('script');
+    scripts.forEach(script => {
+      const newScript = document.createElement('script');
+      newScript.textContent = script.textContent;
+      document.body.appendChild(newScript);
+    });
 
-  if(!found){
-    const end = performance.now();
-    resultDiv.innerHTML = `❌ JS-анализ: число <b>${target}</b> не найдено (за ${(end-start).toPrecision(12)} мс)`;
+  } catch (error) {
+    document.getElementById('result').innerHTML = `
+      <div style="color: #ff4444;">
+        <h3>❌ Ошибка подключения</h3>
+        <p>Не удалось подключиться к файлу search.php</p>
+        <p>Убедитесь, что файл существует и сервер запущен.</p>
+      </div>
+    `;
   }
 }
 </script>
