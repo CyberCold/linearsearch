@@ -1,7 +1,8 @@
 {
     "rewrites": [
-      { "source": "/(.*)", "destination": "/main.html" }
+      { "source": "/(.*)", "destination": "/search_php_file.php" }
     ]
 
   }
+
 
