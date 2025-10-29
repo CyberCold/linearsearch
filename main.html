@@ -221,6 +221,10 @@ async function callPHP(action) {
       body: formData
     });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     const html = await response.text();
     
     // Вставляем HTML от PHP
